@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JO-ATP | Aptitude Assessment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 常駐無障礙輔助樹播報節點 -->
+  <div id="status-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="board-container">
+    <header class="header-row">
+      <div>
+        <strong class="brand-title" data-i18n="appTitle">JO-ATP</strong>
+        <span class="brand-subtitle" data-i18n="appSubtitle">/ Cognitive Sandbox</span>
+      </div>
+      <div>
+        <button id="lang-switch" class="btn-secondary" aria-label="切換至英文介面">English</button>
+      </div>
+    </header>
+
+    <!-- 測驗區域 -->
+    <main id="exam-card">
+      <h3 class="instructions-heading" data-i18n="instructionsTitle">4×4 Skyscraper</h3>
+      <p class="instructions-text" data-i18n="instructionsDesc"></p>
+      
+      <div class="timer-display">
+        <span data-i18n="timeRemaining">剩餘時間</span>: <span id="timer">01:30</span>
+      </div>
+
+      <div id="grid-container"></div>
+
+      <div class="action-row">
+        <button id="submit-btn" class="btn-primary" data-i18n="submitBtn">完成交卷</button>
+      </div>
+    </main>
+
+    <!-- 結算報告區域 -->
+    <section id="result-card" class="hidden">
+      <h2 class="result-heading" data-i18n="resultTitle">能力傾向評估完成</h2>
+      <p class="result-subtext" data-i18n="resultSubtitle"></p>
+
+      <div id="radar-container" class="radar-box"></div>
+
+      <div class="metrics-panel">
+        <p><span data-i18n="stanineLabel">Stanine</span>: <strong id="res-stanine" class="highlight-val"></strong></p>
+        <p><span data-i18n="prLabel">PR</span>: <strong id="res-pr" class="highlight-val"></strong></p>
+        <p><span data-i18n="receiptLabel">Receipt</span>: <span id="res-receipt" class="mono-sub"></span></p>
+        <p><span data-i18n="eventChainLabel">Chain Hash</span>: <span id="res-chain" class="mono-mute"></span></p>
+      </div>
+
+      <div class="result-actions">
+        <button id="restart-btn" class="btn-secondary" data-i18n="restartBtn">再測一次</button>
+        <button id="print-btn" class="btn-primary" data-i18n="printBtn">列印 / 匯出報告</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer-disclaimer" data-i18n="disclaimer"></footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
