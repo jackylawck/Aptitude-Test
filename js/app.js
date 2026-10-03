@@ -4,14 +4,20 @@ import { PsychometricsEngine } from './psychometrics.js';
 import { IntegrityProof } from './integrityProof.js';
 import { RadarChartRenderer } from './radarChart.js';
 
+/**
+ * @typedef {{ t: number, type: string, val?: string }} AuditEvent
+ */
+
 let currentPuzzle = null;
 let currentGrid = [];
+/** @type {AuditEvent[]} */
 let eventStream = [];
 let startTime = 0;
 let remainingSeconds = 90;
 let timerInterval = null;
 let isTimerPaused = false;
 let isFinished = false;
+let isStarted = false; // 追蹤是否已點擊開始測驗
 let lastEvaluatedDimensions = null;
 
 function announceLive(message) {
@@ -83,7 +89,8 @@ function renderI18n() {
   }
 }
 
-function initGame() {
+function startAssessmentFlow() {
+  isStarted = true;
   isFinished = false;
   remainingSeconds = 90;
   isTimerPaused = false;
@@ -92,8 +99,14 @@ function initGame() {
   eventStream = [];
   startTime = performance.now();
 
+  // 切換卡片：隱藏說明與結算卡片，顯示作答區域
+  document.getElementById('intro-card')?.classList.add('hidden');
+  document.getElementById('result-card')?.classList.add('hidden');
+  document.getElementById('exam-card')?.classList.remove('hidden');
+
   renderGrid();
   startTimer();
+  announceLive(t('announcements.started'));
 }
 
 function updateCell(r, c, val, cellElement) {
@@ -203,7 +216,7 @@ function startTimer() {
   updateTimerDisplay();
 
   timerInterval = setInterval(() => {
-    if (isTimerPaused || isFinished) return;
+    if (isTimerPaused || isFinished || !isStarted) return;
     remainingSeconds--;
     updateTimerDisplay();
 
@@ -215,7 +228,7 @@ function startTimer() {
 }
 
 document.addEventListener('visibilitychange', () => {
-  if (isFinished) return;
+  if (!isStarted || isFinished) return;
   if (document.hidden) {
     isTimerPaused = true;
     eventStream.push({ t: Math.round(performance.now() - startTime), type: 'TAB_PAUSE' });
@@ -286,20 +299,30 @@ async function finishAssessment() {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderI18n();
-  initGame();
 
+  // 切換中英文
   document.getElementById('lang-switch')?.addEventListener('click', () => {
     setLang(getLang() === 'zh' ? 'en' : 'zh');
     renderI18n();
   });
 
+  // 點擊開始測驗（從說明引導卡進入作答卡並開始倒數）
+  document.getElementById('start-btn')?.addEventListener('click', startAssessmentFlow);
+
+  // 完成交卷
   document.getElementById('submit-btn')?.addEventListener('click', finishAssessment);
+
+  // 列印 / 匯出報告
   document.getElementById('print-btn')?.addEventListener('click', () => window.print());
 
+  // 再測一次：乾淨重置並返回說明卡片
   document.getElementById('restart-btn')?.addEventListener('click', () => {
-    document.getElementById('result-card')?.classList.add('hidden');
-    document.getElementById('exam-card')?.classList.remove('hidden');
+    if (timerInterval) clearInterval(timerInterval);
+    isStarted = false;
+    isFinished = false;
     lastEvaluatedDimensions = null;
-    initGame();
+    document.getElementById('result-card')?.classList.add('hidden');
+    document.getElementById('exam-card')?.classList.add('hidden');
+    document.getElementById('intro-card')?.classList.remove('hidden');
   });
 });
